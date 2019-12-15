@@ -2,6 +2,7 @@
 name = "rostend"
 version = "0.1.0"
 authors = ["Dirk Leifeld <leifeld@posteo.de>"]
+description = "systemd compactilbe init system for containers."
 edition = "2018"
 default-run = "rostend"
 readme = "README.md"
