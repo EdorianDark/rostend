@@ -14,3 +14,4 @@ branch = "master"
 repository = "EdorianDark/rostend"
 
 [dependencies]
+rust-ini = "0.13.0"
