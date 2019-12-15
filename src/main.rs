@@ -4,9 +4,7 @@ fn main() {
     units::parse("examples/simple.service");
     //parse unit files
 
-    //merge unit files
-
-    //create services
+    //create dependencies
 
     //start services
 

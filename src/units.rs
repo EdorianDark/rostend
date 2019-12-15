@@ -5,8 +5,9 @@ use std::collections::HashMap;
 /// the properties of a unit
 struct Unit {
     description: String,
-    before: String,
-    after: String,
+    before: String, // if both units are started, this is started before
+    after: String,  // if both units are started, this is started after
+    wants: String, // depends on other service
 }
 
 /// the type of a service
@@ -30,6 +31,7 @@ fn parse_unit(mut properties: Properties) -> Unit {
     let description = properties.remove("Description").unwrap_or("".to_string());
     let before = properties.remove("Before").unwrap_or("".to_string());
     let after = properties.remove("After").unwrap_or("".to_string());
+    let wants = properties.remove("Wants").unwrap_or("".to_string());
 
     if !properties.is_empty() {
         panic!("Unit has unrecognized options {:?}", properties);
@@ -39,6 +41,7 @@ fn parse_unit(mut properties: Properties) -> Unit {
         description,
         before,
         after,
+        wants,
     }
 }
 
