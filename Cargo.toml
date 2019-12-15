@@ -3,7 +3,13 @@ name = "rostend"
 version = "0.1.0"
 authors = ["Dirk Leifeld <leifeld@posteo.de>"]
 edition = "2018"
+default-run = "rostend"
+readme = "Readme.md"
+license = "Apache-2.0"
+repository = "https://github.com/EdorianDark/rostend.git"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[badges.github]
+branch = "master"
+repository = "EdorianDark/rostend"
 
 [dependencies]
