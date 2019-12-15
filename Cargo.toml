@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["Dirk Leifeld <leifeld@posteo.de>"]
 edition = "2018"
 default-run = "rostend"
-readme = "Readme.md"
+readme = "README.md"
 license = "Apache-2.0"
 repository = "https://github.com/EdorianDark/rostend.git"
 
