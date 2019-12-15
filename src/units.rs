@@ -7,7 +7,7 @@ struct Unit {
     description: String,
     before: String, // if both units are started, this is started before
     after: String,  // if both units are started, this is started after
-    wants: String, // depends on other service
+    wants: String,  // depends on other service
 }
 
 /// the type of a service
@@ -45,29 +45,6 @@ fn parse_unit(mut properties: Properties) -> Unit {
     }
 }
 
-#[test]
-fn test_parse_unit_empty() {
-    let properties = HashMap::new();
-    let unit = parse_unit(properties);
-    assert_eq!(unit.description, "");
-}
-
-#[test]
-fn test_parse_unit_description() {
-    let mut properties = HashMap::new();
-    properties.insert("Description".to_string(), "test".to_string());
-    let unit = parse_unit(properties);
-    assert_eq!(unit.description, "test");
-}
-
-#[test]
-#[should_panic]
-fn test_parse_unit_invalid() {
-    let mut properties = HashMap::new();
-    properties.insert("Invalid".to_string(), "test".to_string());
-    let _unit = parse_unit(properties);
-}
-
 fn parse_service(mut properties: Properties, unit: Unit) -> Service {
     let exec_start = properties.remove("ExecStart").unwrap_or("".to_string());
     let service_type = properties.remove("Type").unwrap_or("Simple".to_string());
@@ -100,4 +77,32 @@ pub fn parse(file: &str) -> Service {
 
     let service = conf.section(Some("Service")).unwrap();
     parse_service(service.clone(), unit)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_unit_empty() {
+        let properties = HashMap::new();
+        let unit = parse_unit(properties);
+        assert_eq!(unit.description, "");
+    }
+
+    #[test]
+    fn test_parse_unit_description() {
+        let mut properties = HashMap::new();
+        properties.insert("Description".to_string(), "test".to_string());
+        let unit = parse_unit(properties);
+        assert_eq!(unit.description, "test");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_parse_unit_invalid() {
+        let mut properties = HashMap::new();
+        properties.insert("Invalid".to_string(), "test".to_string());
+        let _unit = parse_unit(properties);
+    }
 }
