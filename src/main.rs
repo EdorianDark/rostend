@@ -1,10 +1,12 @@
 mod units;
+use std::env;
 
 fn main() {
-    units::parse("examples/simple.service");
-    //parse unit files
+    let args: Vec<String> = env::args().collect();
+    println!("{:?}", args);
 
-    //create dependencies
+    let services = units::parse_dir("examples");
+    dbg!(&services.len());
 
     //start services
 
