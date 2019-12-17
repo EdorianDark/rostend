@@ -7,6 +7,7 @@ use std::fs::File;
 use std::cmp::Ordering;
 
 /// the properties of a unit
+#[derive(Eq, PartialEq)]
 struct Unit {
     name: String,
     description: Option<String>,
@@ -15,7 +16,46 @@ struct Unit {
     wants: Option<String>,  // depends on other service
 }
 
+impl PartialOrd for Unit {
+    fn partial_cmp(&self, other: &Unit) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Unit {
+    fn cmp(&self, other: &Unit) -> Ordering {
+        if self.after.is_some()
+            && self.after.as_ref().unwrap() == &other.name{
+                Ordering::Less
+        }
+        else if other.after.is_some()
+            && other.after.as_ref().unwrap() == &self.name {
+                Ordering::Greater
+        }
+        else if self.before.is_some()
+            && self.before.as_ref().unwrap() == &other.name {
+                Ordering::Greater
+        }
+        else if other.before.is_some()
+            && other.before.as_ref().unwrap() == &self.name{
+                Ordering::Less
+        }
+        else if self.wants.is_some()
+            && self.wants.as_ref().unwrap() == &other.name {
+                Ordering::Greater
+        }
+        else if other.wants.is_some()
+            && other.wants.as_ref().unwrap() == &self.name{
+                Ordering::Less
+        }
+        else {
+            self.name.cmp(&other.name)
+        }
+    }
+}
+
 /// the type of a service
+#[derive(Ord, PartialOrd, Eq, PartialEq)]
 pub enum ServiceType {
     Simple,
     //Forking,
@@ -26,6 +66,7 @@ pub enum ServiceType {
 }
 
 /// the properties of a service
+#[derive(Ord, PartialOrd, Eq, PartialEq)]
 pub struct Service {
     unit: Unit,
     service_type: ServiceType,
@@ -87,22 +128,6 @@ pub fn parse(file: &str) -> Service {
     parse_service(service.clone(), unit)
 }
 
-fn sort_services(a: &Service, b: &Service)-> Ordering{
-    /*if Some(&a.unit.name) == b.unit.before{
-        return Ordering::Less;
-    }
-    if Some(&b.unit.name) == a.unit.before{
-        return Ordering::Greater;
-    }
-    if Some(&a.unit.name) == b.unit.after{
-        return Ordering::Greater;
-    }
-    if Some(&b.unit.name) == a.unit.after{
-        return Ordering::Less;
-    }*/
-    a.unit.name.cmp(&b.unit.name)
-}
-
 pub fn parse_dir(path: &str) -> Vec<Service> {
     let dir = Path::new(path);
     let mut vec = Vec::new();
@@ -115,7 +140,7 @@ pub fn parse_dir(path: &str) -> Vec<Service> {
     if vec.is_empty(){
         panic!("could not find .service files in {}", dir.display());
     }
-    vec.sort_by(sort_services);
+    vec.sort();
     vec
 }
 
@@ -145,5 +170,45 @@ mod tests {
         let mut properties = HashMap::new();
         properties.insert("Invalid".to_string(), "test".to_string());
         let _unit = parse_unit(properties, "");
+    }
+    fn new_service(name: String) -> Service{
+        Service{
+            service_type: ServiceType::Simple,
+            exec_start: None,
+            unit : Unit{
+                after: None,
+                before: None,
+                name,
+                description: None,
+                wants: None,
+            }
+        }
+    }
+
+    #[test]
+    fn test_service_order_before(){
+        let a = new_service("A".to_string());
+        let mut b = new_service("B".to_string());
+        b.unit.before = Some("A".to_string());
+        assert_eq!(a.cmp(&b), Ordering::Less);
+        assert_eq!(b.cmp(&a), Ordering::Greater);
+    }
+
+    #[test]
+    fn test_service_order_after(){
+        let a = new_service("A".to_string());
+        let mut b = new_service("B".to_string());
+        b.unit.after = Some("A".to_string());
+        assert_eq!(a.cmp(&b), Ordering::Greater);
+        assert_eq!(b.cmp(&a), Ordering::Less);
+    }
+
+    #[test]
+    fn test_service_order_wants(){
+        let a = new_service("A".to_string());
+        let mut b = new_service("B".to_string());
+        b.unit.wants = Some("A".to_string());
+        assert_eq!(a.cmp(&b), Ordering::Less);
+        assert_eq!(b.cmp(&a), Ordering::Greater);
     }
 }
