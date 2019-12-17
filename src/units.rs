@@ -1,9 +1,7 @@
 use ini::ini::Properties;
 use ini::Ini;
 use std::cmp::Ordering;
-use std::fs::File;
-use std::fs::{self, DirEntry};
-use std::io;
+use std::fs;
 use std::path::Path;
 
 /// the properties of a unit

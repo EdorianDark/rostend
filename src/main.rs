@@ -1,5 +1,4 @@
 mod units;
-use std::env;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
