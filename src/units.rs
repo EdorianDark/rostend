@@ -1,19 +1,19 @@
 use ini::ini::Properties;
 use ini::Ini;
-use std::path::Path;
-use std::io;
-use std::fs::{self, DirEntry};
-use std::fs::File;
 use std::cmp::Ordering;
+use std::fs::File;
+use std::fs::{self, DirEntry};
+use std::io;
+use std::path::Path;
 
 /// the properties of a unit
 #[derive(Eq, PartialEq)]
-struct Unit {
-    name: String,
-    description: Option<String>,
-    before: Option<String>, // if both units are started, this is started before
-    after: Option<String>,  // if both units are started, this is started after
-    wants: Option<String>,  // depends on other service
+pub struct Unit {
+    pub name: String,
+    pub description: Option<String>,
+    pub before: Option<String>, // if both units are started, this is started before
+    pub after: Option<String>,  // if both units are started, this is started after
+    pub wants: Option<String>,  // depends on other service
 }
 
 impl PartialOrd for Unit {
@@ -24,31 +24,19 @@ impl PartialOrd for Unit {
 
 impl Ord for Unit {
     fn cmp(&self, other: &Unit) -> Ordering {
-        if self.after.is_some()
-            && self.after.as_ref().unwrap() == &other.name{
-                Ordering::Less
-        }
-        else if other.after.is_some()
-            && other.after.as_ref().unwrap() == &self.name {
-                Ordering::Greater
-        }
-        else if self.before.is_some()
-            && self.before.as_ref().unwrap() == &other.name {
-                Ordering::Greater
-        }
-        else if other.before.is_some()
-            && other.before.as_ref().unwrap() == &self.name{
-                Ordering::Less
-        }
-        else if self.wants.is_some()
-            && self.wants.as_ref().unwrap() == &other.name {
-                Ordering::Greater
-        }
-        else if other.wants.is_some()
-            && other.wants.as_ref().unwrap() == &self.name{
-                Ordering::Less
-        }
-        else {
+        if self.after.is_some() && self.after.as_ref().unwrap() == &other.name {
+            Ordering::Less
+        } else if other.after.is_some() && other.after.as_ref().unwrap() == &self.name {
+            Ordering::Greater
+        } else if self.before.is_some() && self.before.as_ref().unwrap() == &other.name {
+            Ordering::Greater
+        } else if other.before.is_some() && other.before.as_ref().unwrap() == &self.name {
+            Ordering::Less
+        } else if self.wants.is_some() && self.wants.as_ref().unwrap() == &other.name {
+            Ordering::Greater
+        } else if other.wants.is_some() && other.wants.as_ref().unwrap() == &self.name {
+            Ordering::Less
+        } else {
             self.name.cmp(&other.name)
         }
     }
@@ -68,9 +56,9 @@ pub enum ServiceType {
 /// the properties of a service
 #[derive(Ord, PartialOrd, Eq, PartialEq)]
 pub struct Service {
-    unit: Unit,
-    service_type: ServiceType,
-    exec_start: Option<String>,
+    pub unit: Unit,
+    pub service_type: ServiceType,
+    pub exec_start: Option<String>,
 }
 
 fn parse_unit(mut properties: Properties, name: &str) -> Unit {
@@ -117,27 +105,35 @@ fn parse_service(mut properties: Properties, unit: Unit) -> Service {
     }
 }
 
-pub fn parse(file: &str) -> Service {
-    let conf = Ini::load_from_str(file).unwrap();
-    let name : String = file.split(".").collect::<Vec<&str>>().get(1).unwrap().to_string();
+pub fn parse(file_name: &str, file_content: &str) -> Service {
+    let conf = Ini::load_from_str(file_content).unwrap();
 
     let section = conf.section(Some("Unit")).unwrap();
-    let unit = parse_unit(section.clone(), &name);
+    let unit = parse_unit(section.clone(), &file_name);
 
     let service = conf.section(Some("Service")).unwrap();
     parse_service(service.clone(), unit)
 }
 
-pub fn parse_dir(path: &str) -> Vec<Service> {
+pub fn parse_dir(path: &std::path::PathBuf) -> Vec<Service> {
     let dir = Path::new(path);
     let mut vec = Vec::new();
     for entry in fs::read_dir(dir).unwrap() {
         let dir = entry.unwrap();
-        dir.file_name().to_str().unwrap().ends_with(".service");
-        let file: String = fs::read_to_string(dir.path()).ok().unwrap();
-        vec.push(parse(&file));
+        let file_name_path = dir.file_name();
+        let file_name_option = file_name_path.to_str();
+        if file_name_option.is_none() {
+            continue;
+        };
+        let file_name = file_name_option.unwrap();
+
+        if file_name.ends_with(".service") {
+            let file: String = fs::read_to_string(dir.path()).ok().unwrap();
+            let service_name = file_name.trim_end_matches(".service");
+            vec.push(parse(service_name, &file));
+        }
     }
-    if vec.is_empty(){
+    if vec.is_empty() {
         panic!("could not find .service files in {}", dir.display());
     }
     vec.sort();
@@ -171,22 +167,22 @@ mod tests {
         properties.insert("Invalid".to_string(), "test".to_string());
         let _unit = parse_unit(properties, "");
     }
-    fn new_service(name: String) -> Service{
-        Service{
+    fn new_service(name: String) -> Service {
+        Service {
             service_type: ServiceType::Simple,
             exec_start: None,
-            unit : Unit{
+            unit: Unit {
                 after: None,
                 before: None,
                 name,
                 description: None,
                 wants: None,
-            }
+            },
         }
     }
 
     #[test]
-    fn test_service_order_before(){
+    fn test_service_order_before() {
         let a = new_service("A".to_string());
         let mut b = new_service("B".to_string());
         b.unit.before = Some("A".to_string());
@@ -195,7 +191,7 @@ mod tests {
     }
 
     #[test]
-    fn test_service_order_after(){
+    fn test_service_order_after() {
         let a = new_service("A".to_string());
         let mut b = new_service("B".to_string());
         b.unit.after = Some("A".to_string());
@@ -204,7 +200,7 @@ mod tests {
     }
 
     #[test]
-    fn test_service_order_wants(){
+    fn test_service_order_wants() {
         let a = new_service("A".to_string());
         let mut b = new_service("B".to_string());
         b.unit.wants = Some("A".to_string());

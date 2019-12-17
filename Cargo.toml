@@ -15,3 +15,4 @@ repository = "EdorianDark/rostend"
 
 [dependencies]
 rust-ini = "0.13.0"
+structopt = "0.2.10"
