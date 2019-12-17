@@ -1,9 +1,9 @@
 [Unit]
 Description=Foo
-
+Before=simpleA
 
 [Service]
-ExecStart=/bin/sleep 9
+ExecStart=/bin/echo B
 
 [Install]
 WantedBy=multi-user.target

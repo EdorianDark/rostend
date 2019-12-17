@@ -1,10 +1,11 @@
+mod services;
 mod units;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
 struct Cli {
-    /// how long to wait for startup
-    wait_ms: String,
+    /// how long to wait for startup (sec)
+    wait_sec: String,
     /// The path to the unit files
     #[structopt(parse(from_os_str))]
     path: std::path::PathBuf,
@@ -15,15 +16,11 @@ fn main() {
 
     let services = units::parse_dir(&args.path);
     dbg!(&services.len());
-    for service in services {
+    for service in &services {
         println!("{}", service.unit.name);
     }
 
-    //start services
+    services::start_services(&services, args.wait_sec.parse().unwrap_or(0));
 
-    //monitor
-
-    //shut down
-
-    println!("Hello, world!");
+    println!("all processes finished");
 }
