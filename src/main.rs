@@ -15,7 +15,8 @@ fn main() {
     let args = Cli::from_args();
 
     let services = units::parse_dir(&args.path);
-    dbg!(&services.len());
+
+    println!("{} services were found", services.len());
     for service in &services {
         println!("{}", service.unit.name);
     }

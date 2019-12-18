@@ -1,9 +1,8 @@
 [Unit]
 Description=Foo
 
-
 [Service]
-ExecStart=/bin/sleep 9
+ExecStart=/packages/example_service 1
 
 [Install]
 WantedBy=multi-user.target

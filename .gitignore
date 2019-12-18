@@ -2,3 +2,5 @@
 **/*.rs.bk
 
 /.idea
+/examples/packages
+/examples/example_service/target
