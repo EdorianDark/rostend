@@ -67,7 +67,7 @@ dependencies = [
 
 [[package]]
 name = "rostend"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "rust-ini 0.13.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "structopt 0.2.18 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,6 +1,6 @@
 [package]
 name = "rostend"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Dirk Leifeld <leifeld@posteo.de>"]
 description = "systemd compactilbe init system for containers."
 edition = "2018"
