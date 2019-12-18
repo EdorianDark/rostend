@@ -23,17 +23,17 @@ impl PartialOrd for Unit {
 impl Ord for Unit {
     fn cmp(&self, other: &Unit) -> Ordering {
         if self.after.is_some() && self.after.as_ref().unwrap() == &other.name {
-            Ordering::Less
+            Ordering::Greater
         } else if other.after.is_some() && other.after.as_ref().unwrap() == &self.name {
-            Ordering::Greater
+            Ordering::Less
         } else if self.before.is_some() && self.before.as_ref().unwrap() == &other.name {
-            Ordering::Greater
+            Ordering::Less
         } else if other.before.is_some() && other.before.as_ref().unwrap() == &self.name {
-            Ordering::Less
-        } else if self.wants.is_some() && self.wants.as_ref().unwrap() == &other.name {
             Ordering::Greater
-        } else if other.wants.is_some() && other.wants.as_ref().unwrap() == &self.name {
+        } else if self.wants.is_some() && self.wants.as_ref().unwrap() == &other.name {
             Ordering::Less
+        } else if other.wants.is_some() && other.wants.as_ref().unwrap() == &self.name {
+            Ordering::Greater
         } else {
             self.name.cmp(&other.name)
         }
@@ -184,8 +184,8 @@ mod tests {
         let a = new_service("A".to_string());
         let mut b = new_service("B".to_string());
         b.unit.before = Some("A".to_string());
-        assert_eq!(a.cmp(&b), Ordering::Less);
-        assert_eq!(b.cmp(&a), Ordering::Greater);
+        assert_eq!(a.cmp(&b), Ordering::Greater);
+        assert_eq!(b.cmp(&a), Ordering::Less);
     }
 
     #[test]
@@ -193,8 +193,8 @@ mod tests {
         let a = new_service("A".to_string());
         let mut b = new_service("B".to_string());
         b.unit.after = Some("A".to_string());
-        assert_eq!(a.cmp(&b), Ordering::Greater);
-        assert_eq!(b.cmp(&a), Ordering::Less);
+        assert_eq!(a.cmp(&b), Ordering::Less);
+        assert_eq!(b.cmp(&a), Ordering::Greater);
     }
 
     #[test]
@@ -202,7 +202,7 @@ mod tests {
         let a = new_service("A".to_string());
         let mut b = new_service("B".to_string());
         b.unit.wants = Some("A".to_string());
-        assert_eq!(a.cmp(&b), Ordering::Less);
-        assert_eq!(b.cmp(&a), Ordering::Greater);
+        assert_eq!(a.cmp(&b), Ordering::Greater);
+        assert_eq!(b.cmp(&a), Ordering::Less);
     }
 }

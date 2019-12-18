@@ -2,7 +2,7 @@
 Description=Foo
 
 [Service]
-ExecStart=/packages/example_service 1
+ExecStart=/packages/example_service 7
 
 [Install]
 WantedBy=multi-user.target

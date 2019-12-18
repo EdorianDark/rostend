@@ -3,7 +3,7 @@ Description=Foo
 Before=simpleB
 
 [Service]
-ExecStart=/packages/example_service 10
+ExecStart=/packages/example_service 1
 
 [Install]
 WantedBy=multi-user.target
