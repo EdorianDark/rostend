@@ -25,10 +25,13 @@ pub fn start_services(services: &Vec<Service>, wait : u64) {
 
     let mut finished = false;
     while !finished {
-        finished = false;
+        finished = true;
         for child in &mut children {
-            if child.try_wait().unwrap().is_some() {
-                finished = true;
+            let status = child.try_wait();
+            if status.is_ok() {
+                if status.unwrap().is_none() {
+                    finished = false;
+                }
             }
         }
         thread::sleep(Duration::from_millis(500));
