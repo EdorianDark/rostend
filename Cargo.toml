@@ -1,18 +1,1 @@
-[package]
-name = "rostend"
-version = "0.2.0"
-authors = ["Dirk Leifeld <leifeld@posteo.de>"]
-description = "systemd compactilbe init system for containers."
-edition = "2018"
-default-run = "rostend"
-readme = "README.md"
-license = "Apache-2.0"
-repository = "https://github.com/EdorianDark/rostend.git"
 
-[badges.github]
-branch = "master"
-repository = "EdorianDark/rostend"
-
-[dependencies]
-rust-ini = "0.13.0"
-structopt = "0.2.10"
